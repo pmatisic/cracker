@@ -5,8 +5,7 @@
 # define MAX_CHARS 100
 
 struct password_details {
-    char pass[MAX_CHARS]; // assuming someones password cannot be greater
-    // than 100 chars
+    char pass[MAX_CHARS]; // pretpostavka da nečija lozinka neće biti veća od 100 znakova
     double time_taken;
     long int attempts;
     int bf_cracked; // cracked with the brute force algorithm
@@ -106,8 +105,7 @@ int main(void) {
 
     printf("Entering brute force algorithm\n");
 
-    char password_guesser[MAX_CHARS]; // assuming someones password cannot be greater
-    // than 100 characters
+    char password_guesser[MAX_CHARS]; // pretpostavka da nečija lozinka neće biti veća od 100 znakova
     password_guesser[0] = '0';
     password_guesser[1] = '\0';
     attempts = 0;
@@ -141,7 +139,7 @@ int main(void) {
 
         if (password_guesser[curr_array_elem] == '9') {
             password_guesser[curr_array_elem] = 'A';
-            if (curr_array_elem > 0) { // resetting
+            if (curr_array_elem > 0) { // resetiranje
                 for (m = 0; m < curr_array_elem; m++) {
                     password_guesser[m] = '0';
                 }
@@ -149,7 +147,7 @@ int main(void) {
             curr_array_elem = 0;
         } else if (password_guesser[curr_array_elem] == 'Z') {
             password_guesser[curr_array_elem] = 'a';
-            if (curr_array_elem > 0) { // resetting
+            if (curr_array_elem > 0) { // resetiranje
                 for (m = 0; m < curr_array_elem; m++) {
                     password_guesser[m] = '0';
                 }
@@ -172,7 +170,7 @@ int main(void) {
             }
         } else {
             password_guesser[curr_array_elem]++;
-            if (curr_array_elem > 0) { // resetting
+            if (curr_array_elem > 0) { // resetiranje
                 for (m = 0; m < curr_array_elem; m++) {
                     password_guesser[m] = '0';
                 }
