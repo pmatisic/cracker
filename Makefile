@@ -1,11 +1,18 @@
 CC      := gcc
 LDFLAGS := -lssl -lcrypto -lpthread
-TARGET  := hashcrack
+TARGET_HASHCRACK := hashcrack
+TARGET_PASS := pass
 
-SOURCES := hash.c main.c
+SOURCES_HASHCRACK := hash.c main.c
+SOURCES_PASS := pass.c
 
-all: $(SOURCES)
-	$(CC) $(SOURCES) -o $(TARGET) $(LDFLAGS)
+all: $(TARGET_HASHCRACK) $(TARGET_PASS)
+
+$(TARGET_HASHCRACK): $(SOURCES_HASHCRACK)
+	$(CC) $(SOURCES_HASHCRACK) -o $(TARGET_HASHCRACK) $(LDFLAGS)
+
+$(TARGET_PASS): $(SOURCES_PASS)
+	$(CC) $(SOURCES_PASS) -o $(TARGET_PASS)
 
 clean:
-	@ rm $(TARGET)
+	@ rm $(TARGET_HASHCRACK) $(TARGET_PASS)
