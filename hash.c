@@ -8,17 +8,18 @@
 #include "hash.h"
 
 /**
- * Funkcija za pretvaranje hash-a u hex i stavljanje u međuspremnik.
+ * Funkcija za pretvaranje hash-a u heksadecimalni zapis.
  *
- * @param hash Hash za pretvaranje u hex.
- * @param output_buffer Izlazni međuspremnik.
- * @param length Duljina međuspremnika.
+ * @param hash Hash za pretvaranje u hex
+ * @param output_buffer Izlazni međuspremnik
+ * @param length Duljina međuspremnika
  */
 void hash_to_hex(unsigned char *hash, char *output_buffer, int length)
 {
     int i = 0;
 
-    for(i = 0; i < length; i++) {
+    for (i = 0; i < length; i++)
+    {
         sprintf(output_buffer + (i * 2), "%02x", hash[i]);
     }
 
@@ -26,10 +27,10 @@ void hash_to_hex(unsigned char *hash, char *output_buffer, int length)
 }
 
 /**
- * Kreiranje SHA512 hash-a.
+ * Funkcija za kreiranje SHA512 hash-a.
  *
- * @param string String u hash.
- * @param buffer Izlazni međuspremnik.
+ * @param string String za pretvaranje u hash
+ * @param buffer Izlazni međuspremnik
  */
 void sha512(char *string, char output_buffer[128])
 {
@@ -44,10 +45,10 @@ void sha512(char *string, char output_buffer[128])
 }
 
 /**
- * Kreiranje SHA256 hash-a.
+ * Funkcija za kreiranje SHA256 hash-a.
  *
- * @param string String u hash.
- * @param buffer Izlazni međuspremnik.
+ * @param string String za pretvaranje u hash
+ * @param buffer Izlazni međuspremnik
  */
 void sha256(char *string, char output_buffer[65])
 {
@@ -62,10 +63,10 @@ void sha256(char *string, char output_buffer[65])
 }
 
 /**
- * Kreiranje SHA1 hash-a.
+ * Funkcija za kreiranje SHA1 hash-a.
  *
- * @param string String u hash.
- * @param buffer Izlazni međuspremnik.
+ * @param string String za pretvaranje u hash
+ * @param buffer Izlazni međuspremnik
  */
 void sha1(char *string, char output_buffer[40])
 {
@@ -80,10 +81,10 @@ void sha1(char *string, char output_buffer[40])
 }
 
 /**
- * Kreiranje MD5 hash-a.
+ * Funkcija za kreiranje MD5 hash-a.
  *
- * @param string String u hash.
- * @param buffer Izlazni međuspremnik.
+ * @param string String za pretvaranje u hash
+ * @param buffer Izlazni međuspremnik
  */
 void md5(char *string, char output_buffer[33])
 {

@@ -1,7 +1,7 @@
 #ifndef HASH_H
 #define HASH_H
 
-// Pretvaranje hash-a u hex.
+// Pretvaranje hash-a u heksadecimalni zapis.
 void hash_to_hex(unsigned char *, char *, int);
 
 // Funkcije hashiranja.

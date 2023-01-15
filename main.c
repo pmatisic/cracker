@@ -39,20 +39,24 @@ static struct option long_options[] = {
 };
 
 /**
- * Vraćanje veličine blob-a.
- * @param char[] Polje poruke.
+ * Vraćanje veličine datoteke
+ * @param char[] Niz poruke
  */
 void manage_read(char msg_line[100])
 {
-    // Čitanje poruke iz blob-a.
+    // Čitanje niza poruke iz datoteke.
     fgets(msg_line, 100, blob);
 
-    // Vraćanje ako je kraj poruke.
+    // Vraća se ako je došlo do kraja poruke.
     if (msg_line == NULL) {
         return;
     }
 }
 
+/**
+ * Worker funkcija
+ * @param ptr Ulazni parametar za povratni poziv funkcije
+ */
 void *worker_callback(void *ptr)
 {
     char msg_line[256];
@@ -74,7 +78,7 @@ void *worker_callback(void *ptr)
             continue;
         }
 
-        // Eliminacija novog reda na kraju poruke.
+        // Eliminacija "novog reda" na kraju.
         if (newlines_flag == 0 && msg_line) {
             msg_line[strlen(msg_line) - 1] = '\0';
         }
@@ -83,7 +87,7 @@ void *worker_callback(void *ptr)
         char hash[hash_length];
         hash_fun_ptr(msg_line, hash);
 
-        // Ponovno pokretanje hash funkcije, ali samom hash-u.
+        // Ponovno pokretanje hash funkcije, ali ovaj put na samom hashu.
         if (applied_hashing > 1) {
             for (int m = 0; m < applied_hashing - 1; m++) {
                 hash_fun_ptr(hash, hash);
@@ -96,27 +100,29 @@ void *worker_callback(void *ptr)
 
         count++;
 
-        // Usporedba dobivenog hash-a s ciljnim hash-om.
+        // Uspoređivanje dobivenog hasha s ciljanim hashom.
         if (strcmp(target_hash, hash) == 0) {
             if (newlines_flag != 0) {
-                printf("The result is (with a newline): %s", msg_line);
+                printf("Rezultat je: %s", msg_line);
             } else {
-                printf("The result is (without a newline): %s\n", msg_line);
+                printf("Rezultat je: %s\n", msg_line);
             }
 
-            // Vrijeme izvršavanja.
+            // Dohvaćanje vremena izvršavanja.
             clock_t end = clock();
             double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-            printf("Found it after %i tries and %f seconds!\n", count, time_spent);
-            printf("The speed was %.2f KHs\n", count / time_spent / 1000);
+            printf("Pronađeno nakon %i pokušaja i %f sekundi!\n", count, time_spent);
+            printf("Brzina je bila %.2f KHs.\n", count / time_spent / 1000);
 
-            // Zatvaranje blob datoteke.
+            // Zatvaranje datoteke blob.
             if (blob) {
                 fclose(blob);
             }
 
             exit(0);
+
+            // Potonji kod uzrokuje pogrešku tokom pokretanja programa.
 
             // Signalizacija ostalim dretvama da je zadatak završen.
             pthread_mutex_lock(&lock);
@@ -137,6 +143,9 @@ void *worker_callback(void *ptr)
     return 0;
 }
 
+/**
+ * Ispis poruke pomoći/upute
+ */
 void print_help()
 {
     printf("hashcrack\n\n");
@@ -157,8 +166,10 @@ void print_help()
 }
 
 /**
- * @param c Zastavica.
- * @param option_index Index opcije.
+ * Funkcija main
+ *
+ * @param c Zastavica argumenta
+ * @param option_index Indeks opcije
  */
 void process_args(int c, int option_index)
 {
@@ -185,7 +196,7 @@ void process_args(int c, int option_index)
                 hash_length = 33;
             }
             else {
-                printf("Unknown format %s\n", format);
+                printf("Nepoznat format %s.\n", format);
                 exit(1);
             }
 
@@ -219,8 +230,11 @@ void process_args(int c, int option_index)
 }
 
 /**
- * @param argc Broj argumenata.
- * @param argv Lista argumenata.
+ * Funkcija main
+ *
+ * @param argc Broj argumenata
+ * @param argv Lista argumenata
+ * @return Status programa
  */
 int main(int argc, char **argv)
 {
@@ -230,7 +244,7 @@ int main(int argc, char **argv)
     // Dohvaćanje broja jezgri.
     long int cores = sysconf(_SC_NPROCESSORS_ONLN);
 
-    printf("Creating %ld threads\n", cores);
+    printf("Kreiranje %ld dretvi.\n", cores);
 
     pthread_mutex_init(&lock, NULL);
     int c;
@@ -239,27 +253,27 @@ int main(int argc, char **argv)
         process_args(c, option_index);
     }
 
-    // Ispisivanje funkcije help ukoliko nešto nedostaje.
+    // Ispis funkcije help ukoliko nedostaje argument.
     if (!wordlist || !format || !target_hash) {
         print_help();
         return 1;
     }
 
-    printf("Reading %s and producing %s\n", wordlist, format);
+    printf("Čitanje %s i dobivanje %s.\n", wordlist, format);
 
     if (newlines_flag != 0) {
-        printf("With newlines.\n");
+        printf("Sa novim redovima.\n");
     }
 
     if (applied_hashing > 1) {
-        printf("Hashing %i times.\n", applied_hashing);
+        printf("Hashiranje %i puta.\n", applied_hashing);
     }
 
     FILE *msgs = fopen(wordlist, "r");
     blob = msgs;
 
     if (msgs == NULL) {
-        printf("Invalid wordlist file\n");
+        printf("Neispravna datoteka liste riječi.\n");
         return 1;
     }
 
