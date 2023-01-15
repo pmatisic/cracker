@@ -1,8 +1,3 @@
-/**
- * Kompajliranje: gcc main.c -o hmac -lssl -lcrypto
- * Primjer korištenja: ./hmac wordlist.txt sha1hash
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
