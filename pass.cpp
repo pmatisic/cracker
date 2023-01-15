@@ -2,186 +2,232 @@
 #include <string.h>
 #include <time.h>
 
-# define MAX_CHARS 100
+#define MAX_CHARS 100
 
-struct password_details {
-    char pass[MAX_CHARS]; // pretpostavka da nečija lozinka neće biti veća od 100 znakova
-    double time_taken;
-    long int attempts;
-    int bf_cracked; // cracked with the brute force algorithm
-    int nbf_cracked; // cracked with the pre brute force algorithm
-    short int identifier;
+struct detaljiLozinke
+{
+    char lozinka[MAX_CHARS]; // pretpostavka da nečija lozinka neće biti veća od 100 znakova
+    double potrebnoVrijeme;
+    long int pokusaji;
+    int bfProbijen;  // probijanje sa brute force algoritmom
+    int nbfProbijen; // probijanje sa pre brute force algoritmom
+    short int identifikator;
 };
 
-int main(void) {
+int main(void)
+{
 
-    int PASSWORDS_CRACKED = 0;
-    int PRE_BRUTEFORCE_CRACKED = 0;
-    int size;
+    int probijeneLozinke = 0;
+    int preBruteForceProbijeneLozinke = 0;
+    int brojLozinki;
 
-    printf("How many passwords would you like to test?\n");
-    scanf("%d", &size);
+    printf("Koliko lozinki zelite testirati?\n");
+    scanf("%d", &brojLozinki);
 
-    printf("Please enter %d passwords\n", size);
+    printf("Unesite %d lozinki:\n", brojLozinki);
 
-    struct password_details pass_list[size];
-    for (int i = 0; i < size; i++) {
-        struct password_details curr_pass;
-        scanf("%s", curr_pass.pass);
-        curr_pass.attempts = 0;
-        curr_pass.bf_cracked = 0;
-        curr_pass.nbf_cracked = 0;
-        curr_pass.identifier = i + 1;
-        pass_list[i] = curr_pass;
+    struct detaljiLozinke listaLozinki[brojLozinki];
+    for (int i = 0; i < brojLozinki; i++)
+    {
+        struct detaljiLozinke trenutnaLozinka;
+        scanf("%s", trenutnaLozinka.lozinka);
+        trenutnaLozinka.pokusaji = 0;
+        trenutnaLozinka.bfProbijen = 0;
+        trenutnaLozinka.nbfProbijen = 0;
+        trenutnaLozinka.identifikator = i + 1;
+        listaLozinki[i] = trenutnaLozinka;
     }
 
-    long int attempts = 0;
+    long int pokusaji = 0;
 
-    // pre brute force algorithm
-    // txt file from https://github.com/danielmiessler/SecLists/tree/master/Passwords/Common-Credentials
-    char file_pass[MAX_CHARS];
-    FILE *fp;
-    int password_found = 0;
-    int len;
-    int pre_bruteforce_attempts = 0;
+    // pre brute force algoritam
+    // txt datoteka sa https://github.com/danielmiessler/SecLists/tree/master/Passwords/Common-Credentials
+    char lozinkeDatoteke[MAX_CHARS];
+    FILE *ld;
+    int pronadeneLozinke = 0;
+    int duljina;
+    int preBruteForcePokusaji = 0;
 
-    fp = fopen("pass.txt", "r");
-    if (fp == NULL) {
-        perror("Error opening file");
+    ld = fopen("pass.txt", "r");
+    if (ld == NULL)
+    {
+        perror("Pogreska pri otvaranju datoteke!");
         return 1;
     }
 
-    time_t start, end;
-    double time_taken;
-    start = clock();
+    time_t pocetak, kraj;
+    double potrebnoVrijeme;
+    pocetak = clock();
 
-    // struct password_details pass_list[] = {pass1, pass2, pass3};
+    // struct detaljiLozinke listaLozinki[] = {pass1, pass2, pass3};
 
-    while (fgets(file_pass, MAX_CHARS, fp) != NULL) {
-        pre_bruteforce_attempts++;
-        len = strlen(file_pass);
-        if (len > 0 && file_pass[len - 1] == '\n') file_pass[len-1] = '\0';
+    while (fgets(lozinkeDatoteke, MAX_CHARS, ld) != NULL)
+    {
+        preBruteForcePokusaji++;
+        duljina = strlen(lozinkeDatoteke);
+        if (duljina > 0 && lozinkeDatoteke[duljina - 1] == '\n')
+            lozinkeDatoteke[duljina - 1] = '\0';
 
-        for (int curr = 0; curr < size; curr++) {
-            if (pass_list[curr].nbf_cracked != 1) {
-                if (strcmp(pass_list[curr].pass, file_pass) == 0) {
-                    end = clock();
-                    end = end - start;
-                    pass_list[curr].time_taken = ((double)end)/CLOCKS_PER_SEC;
-                    printf("password %d found\n", pass_list[curr].identifier);
-                    pass_list[curr].nbf_cracked = 1;
-                    pass_list[curr].attempts = pre_bruteforce_attempts;
-                    PASSWORDS_CRACKED++;
-                    PRE_BRUTEFORCE_CRACKED++;
+        for (int i = 0; i < brojLozinki; i++)
+        {
+            if (listaLozinki[i].nbfProbijen != 1)
+            {
+                if (strcmp(listaLozinki[i].lozinka, lozinkeDatoteke) == 0)
+                {
+                    kraj = clock();
+                    kraj = kraj - pocetak;
+                    listaLozinki[i].potrebnoVrijeme = ((double)kraj) / CLOCKS_PER_SEC;
+                    printf("Lozinka %d pronadjena!\n", listaLozinki[i].identifikator);
+                    listaLozinki[i].nbfProbijen = 1;
+                    listaLozinki[i].pokusaji = preBruteForcePokusaji;
+                    probijeneLozinke++;
+                    preBruteForceProbijeneLozinke++;
                 }
             }
         }
-        if (PRE_BRUTEFORCE_CRACKED == size) break;
+        if (preBruteForceProbijeneLozinke == brojLozinki)
+            break;
     }
 
-    fclose(fp);
+    fclose(ld);
 
-    for (int curr = 0; curr < size; curr++) {
-        if (pass_list[curr].nbf_cracked == 1) {
-            printf("password %d took %ld attempts\n", pass_list[curr].identifier, pass_list[curr].attempts);
-            printf("took %f seconds to compute\n", pass_list[curr].time_taken);
-            if (pass_list[curr].attempts <= 10) {
-                printf("Your password is in the top 10 most popular passwords!\n");
-            } else if (pass_list[curr].attempts > 10 && pass_list[curr].attempts <= 100) {
-                printf("Your password is in the top 100 most popular passwords!\n");
-            } else if (pass_list[curr].attempts > 100 && pass_list[curr].attempts <= 1000) {
-                printf("Your password is in the top 1000 most popular passwords!\n");
-            } else if (pass_list[curr].attempts > 100 && pass_list[curr].attempts <= 10000) {
-                printf("Your password is in the top 10000 most popular passwords!\n");
-            } else if (pass_list[curr].attempts > 10000 && pass_list[curr].attempts <= 100000) {
-                printf("Your password is in the top 10000 most popular passwords!\n");
-            } else {
-                printf("Your password is in the top 1000000 most popular passwords!\n");
+    for (int i = 0; i < brojLozinki; i++)
+    {
+        if (listaLozinki[i].nbfProbijen == 1)
+        {
+            printf("Za lozinku %d je trebalo %ld pokusaja.\n", listaLozinki[i].identifikator, listaLozinki[i].pokusaji);
+            printf("%f sekundi je trajalo probijanje.\n", listaLozinki[i].potrebnoVrijeme);
+            if (listaLozinki[i].pokusaji <= 10)
+            {
+                printf("Ova lozinka je u top 10 najpopularnijih lozinki!\n");
+            }
+            else if (listaLozinki[i].pokusaji > 10 && listaLozinki[i].pokusaji <= 100)
+            {
+                printf("Ova lozinka je u top 100 najpopularnijih lozinki!\n");
+            }
+            else if (listaLozinki[i].pokusaji > 100 && listaLozinki[i].pokusaji <= 1000)
+            {
+                printf("Ova lozinka je u top 1000 najpopularnijih lozinki!\n");
+            }
+            else if (listaLozinki[i].pokusaji > 1000 && listaLozinki[i].pokusaji <= 10000)
+            {
+                printf("Ova lozinka je u top 10 000 najpopularnijih lozinki!\n");
+            }
+            else if (listaLozinki[i].pokusaji > 10000 && listaLozinki[i].pokusaji <= 100000)
+            {
+                printf("Ova lozinka je u top 100 000 najpopularnijih lozinki!\n");
+            }
+            else
+            {
+                printf("Ova lozinka je u top 1 000 000 najpopularnijih lozinki!\n");
             }
         }
     }
 
-    if (PRE_BRUTEFORCE_CRACKED == size) return 0;
+    if (preBruteForceProbijeneLozinke == brojLozinki)
+        return 0;
 
-    printf("Entering brute force algorithm\n");
+    printf("Koristi se brute force algoritam!\n");
 
-    char password_guesser[MAX_CHARS]; // pretpostavka da nečija lozinka neće biti veća od 100 znakova
-    password_guesser[0] = '0';
-    password_guesser[1] = '\0';
-    attempts = 0;
-    int curr_length = 1;
-    int curr_array_elem = 0;
+    char pogadacLozinki[MAX_CHARS]; // pretpostavka da nečija lozinka neće biti veća od 100 znakova
+    pogadacLozinki[0] = '0';
+    pogadacLozinki[1] = '\0';
+    pokusaji = 0;
+    int duljinaTrenutneLozinke = 1;
+    int elementPoljaTrenutneLozinke = 0;
     int m = 0;
     int j = 0;
     int x = 0;
 
-    while (1) {
-        for (int curr = 0; curr < size; curr++) {
-            if (strcmp(pass_list[curr].pass, password_guesser) == 0) {
-                if (pass_list[curr].bf_cracked != 1 && pass_list[curr].nbf_cracked != 1) {
-                    printf("password %d found\n", pass_list[curr].identifier);
-                    end = clock();
-                    end = end - start;
-                    pass_list[curr].time_taken = ((double)end)/CLOCKS_PER_SEC;
-                    pass_list[curr].bf_cracked = 1;
-                    pass_list[curr].attempts = attempts;
-                    PASSWORDS_CRACKED++;
-                    printf("Password %d took %ld attempts\n", pass_list[curr].identifier, pass_list[curr].attempts);
-                    printf("Password $d took %f seconds to compute\n\n", pass_list[curr].identifier, pass_list[curr].time_taken);
+    while (1)
+    {
+        for (int i = 0; i < brojLozinki; i++)
+        {
+            if (strcmp(listaLozinki[i].lozinka, pogadacLozinki) == 0)
+            {
+                if (listaLozinki[i].bfProbijen != 1 && listaLozinki[i].nbfProbijen != 1)
+                {
+                    printf("Lozinka %d pronadjena!\n", listaLozinki[i].identifikator);
+                    kraj = clock();
+                    kraj = kraj - pocetak;
+                    listaLozinki[i].potrebnoVrijeme = ((double)kraj) / CLOCKS_PER_SEC;
+                    listaLozinki[i].bfProbijen = 1;
+                    listaLozinki[i].pokusaji = pokusaji;
+                    probijeneLozinke++;
+                    printf("Za lozinku %d je trebalo %ld pokusaja.\n", listaLozinki[i].identifikator, listaLozinki[i].pokusaji);
+                    printf("Za lozinku %d je trebalo %f sekundi da se probije.\n\n", listaLozinki[i].identifikator, listaLozinki[i].potrebnoVrijeme);
                 }
             }
         }
 
-        if (PASSWORDS_CRACKED == size) {
-            printf("All passwords found\n");
+        if (probijeneLozinke == brojLozinki)
+        {
+            printf("Sve lozinke su pronadjene!\n");
             break;
         }
 
-        if (password_guesser[curr_array_elem] == '9') {
-            password_guesser[curr_array_elem] = 'A';
-            if (curr_array_elem > 0) { // resetiranje
-                for (m = 0; m < curr_array_elem; m++) {
-                    password_guesser[m] = '0';
+        if (pogadacLozinki[elementPoljaTrenutneLozinke] == '9')
+        {
+            pogadacLozinki[elementPoljaTrenutneLozinke] = 'A';
+            // resetiranje
+            if (elementPoljaTrenutneLozinke > 0)
+            {
+                for (m = 0; m < elementPoljaTrenutneLozinke; m++)
+                {
+                    pogadacLozinki[m] = '0';
                 }
             }
-            curr_array_elem = 0;
-        } else if (password_guesser[curr_array_elem] == 'Z') {
-            password_guesser[curr_array_elem] = 'a';
-            if (curr_array_elem > 0) { // resetiranje
-                for (m = 0; m < curr_array_elem; m++) {
-                    password_guesser[m] = '0';
+            elementPoljaTrenutneLozinke = 0;
+        }
+        else if (pogadacLozinki[elementPoljaTrenutneLozinke] == 'Z')
+        {
+            pogadacLozinki[elementPoljaTrenutneLozinke] = 'a';
+            if (elementPoljaTrenutneLozinke > 0)
+            {
+                for (m = 0; m < elementPoljaTrenutneLozinke; m++)
+                {
+                    pogadacLozinki[m] = '0';
                 }
             }
-            curr_array_elem = 0;
-        } else if (password_guesser[curr_array_elem] == 'z') {
-            curr_array_elem++;
-            if (curr_array_elem == curr_length) {
-                password_guesser[curr_length] = '0';
-                curr_length++;
-                password_guesser[curr_length] = '\0';
-                for (x = 0; x < curr_length-1; x++) {
-                    password_guesser[x] = '0';
+            elementPoljaTrenutneLozinke = 0;
+        }
+        else if (pogadacLozinki[elementPoljaTrenutneLozinke] == 'z')
+        {
+            elementPoljaTrenutneLozinke++;
+            if (elementPoljaTrenutneLozinke == duljinaTrenutneLozinke)
+            {
+                pogadacLozinki[duljinaTrenutneLozinke] = '0';
+                duljinaTrenutneLozinke++;
+                pogadacLozinki[duljinaTrenutneLozinke] = '\0';
+                for (x = 0; x < duljinaTrenutneLozinke - 1; x++)
+                {
+                    pogadacLozinki[x] = '0';
                 }
-                curr_array_elem = 0;
-            } else {
-                for (m = 0; m < curr_array_elem; m++) {
-                    password_guesser[m] = '0';
+                elementPoljaTrenutneLozinke = 0;
+            }
+            else
+            {
+                for (m = 0; m < elementPoljaTrenutneLozinke; m++)
+                {
+                    pogadacLozinki[m] = '0';
                 }
             }
-        } else {
-            password_guesser[curr_array_elem]++;
-            if (curr_array_elem > 0) { // resetiranje
-                for (m = 0; m < curr_array_elem; m++) {
-                    password_guesser[m] = '0';
+        }
+        else
+        {
+            pogadacLozinki[elementPoljaTrenutneLozinke]++;
+            if (elementPoljaTrenutneLozinke > 0)
+            {
+                for (m = 0; m < elementPoljaTrenutneLozinke; m++)
+                {
+                    pogadacLozinki[m] = '0';
                 }
-            curr_array_elem = 0;
+                elementPoljaTrenutneLozinke = 0;
             }
         }
 
-        attempts++;
+        pokusaji++;
     }
-
-    printf("Finished\n");
 
     return 0;
 }
