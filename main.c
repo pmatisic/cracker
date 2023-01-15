@@ -53,9 +53,6 @@ void manage_read(char msg_line[100])
     }
 }
 
-/**
- * @param ptr Ulazni parametar za funkciju.
- */
 void *worker_callback(void *ptr)
 {
     char msg_line[256];
@@ -140,9 +137,6 @@ void *worker_callback(void *ptr)
     return 0;
 }
 
-/**
- * Ispis help funkcije.
- */
 void print_help()
 {
     printf("hashcrack\n\n");
@@ -225,8 +219,6 @@ void process_args(int c, int option_index)
 }
 
 /**
- * Funkcija main.
- *
  * @param argc Broj argumenata.
  * @param argv Lista argumenata.
  */
