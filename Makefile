@@ -2,8 +2,10 @@ CC      := gcc
 LDFLAGS := -lssl -lcrypto -lpthread
 TARGET  := hashcrack
 
-all:
-	$(CC) *.c -o $(TARGET) $(LDFLAGS)
+SOURCES := hash.c main.c
+
+all: $(SOURCES)
+	$(CC) $(SOURCES) -o $(TARGET) $(LDFLAGS)
 
 clean:
 	@ rm $(TARGET)
