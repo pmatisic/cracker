@@ -1,7 +1,6 @@
 /**
- * Build with: gcc main.c -o hmac -lssl -lcrypto
- * Example usage:
- *  ./hmac wordlist.txt sha1hash
+ * Kompajliranje: gcc main.c -o hmac -lssl -lcrypto
+ * Primjer korištenja: ./hmac wordlist.txt sha1hash
  */
 
 #include <stdio.h>
@@ -45,24 +44,22 @@ static struct option long_options[] = {
 };
 
 /**
- * Returns the size of the blob.
- * @param char[] The message line.
+ * Vraćanje veličine blob-a.
+ * @param char[] Polje poruke.
  */
 void manage_read(char msg_line[100])
 {
-    // Read a line from the blob.
+    // Čitanje poruke iz blob-a.
     fgets(msg_line, 100, blob);
 
-    // Return if the end of the line was reached.
+    // Vraćanje ako je kraj poruke.
     if (msg_line == NULL) {
         return;
     }
 }
 
 /**
- * This is the worker callback.
- * @param ptr The input to the worker's callback.
- * 
+ * @param ptr Ulazni parametar za funkciju.
  */
 void *worker_callback(void *ptr)
 {
@@ -85,16 +82,16 @@ void *worker_callback(void *ptr)
             continue;
         }
 
-        // Eliminate the newline at the end.
+        // Eliminacija novog reda na kraju poruke.
         if (newlines_flag == 0 && msg_line) {
             msg_line[strlen(msg_line) - 1] = '\0';
         }
 
-        // Allocate the appropriate memory for the 
+        // Dodijeljivanje odgovarajuće memorije.
         char hash[hash_length];
         hash_fun_ptr(msg_line, hash);
 
-        // Re-run the hash function on, but on the hash itself this time.
+        // Ponovno pokretanje hash funkcije, ali samom hash-u.
         if (applied_hashing > 1) {
             for (int m = 0; m < applied_hashing - 1; m++) {
                 hash_fun_ptr(hash, hash);
@@ -107,7 +104,7 @@ void *worker_callback(void *ptr)
 
         count++;
 
-        // Compare the produced hash to the target hash.
+        // Usporedba dobivenog hash-a s ciljnim hash-om.
         if (strcmp(target_hash, hash) == 0) {
             if (newlines_flag != 0) {
                 printf("The result is (with a newline): %s", msg_line);
@@ -115,23 +112,21 @@ void *worker_callback(void *ptr)
                 printf("The result is (without a newline): %s\n", msg_line);
             }
 
-            // Get the execution time.
+            // Vrijeme izvršavanja.
             clock_t end = clock();
             double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
             printf("Found it after %i tries and %f seconds!\n", count, time_spent);
             printf("The speed was %.2f KHs\n", count / time_spent / 1000);
 
-            // Close the blob file.
+            // Zatvaranje blob datoteke.
             if (blob) {
                 fclose(blob);
             }
 
             exit(0);
 
-            // The thing below causes an error when run. Figure dat shit out.
-
-            // Signal the other threads that we're donezo.
+            // Signalizacija ostalim dretvama da je zadatak završen.
             pthread_mutex_lock(&lock);
             found = 1;
             pthread_mutex_unlock(&lock);
@@ -144,14 +139,14 @@ void *worker_callback(void *ptr)
         pthread_mutex_unlock(&lock);
     }
 
-    // Exit the thread.
+    // Izlazak iz dretve.
     pthread_exit(0);
 
     return 0;
 }
 
 /**
- * Prints the help message.
+ * Ispis help funkcije.
  */
 void print_help()
 {
@@ -173,10 +168,8 @@ void print_help()
 }
 
 /**
- * Main entry to the program.
- *
- * @param c The argument flag.
- * @param option_index The index of the option.
+ * @param c Zastavica.
+ * @param option_index Index opcije.
  */
 void process_args(int c, int option_index)
 {
@@ -237,18 +230,17 @@ void process_args(int c, int option_index)
 }
 
 /**
- * Main entry to the program.
+ * Funkcija main.
  *
- * @param argc The argument count.
- * @param argv The arguments list.
- * @return The status code of the program.
+ * @param argc Broj argumenata.
+ * @param argv Lista argumenata.
  */
 int main(int argc, char **argv)
 {
     begin = clock();
     int option_index = 0;
 
-    // Get the number of cores.
+    // Dohvaćanje broja jezgri.
     long int cores = sysconf(_SC_NPROCESSORS_ONLN);
 
     printf("Creating %ld threads\n", cores);
@@ -260,7 +252,7 @@ int main(int argc, char **argv)
         process_args(c, option_index);
     }
 
-    // If something is missing print the help message.
+    // Ispisivanje funkcije help ukoliko nešto nedostaje.
     if (!wordlist || !format || !target_hash) {
         print_help();
         return 1;
@@ -284,11 +276,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Create as many threads as there are cores.
+    // Kreiranje onoliko dretvi koliko ima jezgri.
     for (int i = 0; i < cores; i++) {
         pthread_t worker;
 
-        // Create the thread.
+        // Kreiranje dretve.
         pthread_create(&worker, NULL, worker_callback, NULL);
     }
 
