@@ -7,6 +7,7 @@
 ---
 
 ### Kompajliranje
+
 Aplikacije je moguće kompajlirati sa:
 ```bash
 $ make
